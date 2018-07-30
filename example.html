@@ -1,0 +1,150 @@
+<!DOctyPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<meta name="author" content="ZIMONH">
+	<title>Falling by ZIMONH</title>
+</head>
+<body>
+
+<style>
+	body {
+		background-color: black;
+		height: 100%;
+		margin: 0;
+		overflow:hidden;
+		width:  100%;
+	}
+</style>
+
+<canvas></canvas>
+
+<script>
+
+const rand = a => Math.floor(a * Math.random()); //Random with math floor
+const randi = a => a * Math.random();			 //Random without math floor
+
+const
+	cv	=	document.querySelector('canvas'),
+	c	=	cv.getContext('2d'),
+	rA	=	[]; //array for rectangles
+
+let	cw	=	0,  //canvas width
+	ch	=	0;	//canvas height
+
+
+const setSize = () =>{
+
+	//make canvas the size of the window
+	c.canvas.width  = window.innerWidth;
+	c.canvas.height = window.innerHeight;
+
+	cw	=	cv.width,  //canvas width
+	ch	=	cv.height; //canvas height
+};
+setSize();
+
+
+window.onresize = function() {
+	setSize();
+};
+
+
+
+const randRect = () => {
+	const size = rand(50);
+
+	return {
+		y:	rand(ch)-ch,			//y position: random minus screen height (so it starts as an empty canvas)
+		x:	rand(cw),				//x position: random
+
+		w:	size,					//width: random same as height
+		h:	size,					//height: random same as width
+
+		f:	'white',				//fill color
+		b:	`rgb(
+				${rand(255)},
+				${rand(255)},
+				${rand(255)}
+			)`, 					//border color
+
+		s:	50+randi(360),			//spin speed
+		a:	rand(360)*Math.PI/180,	//start angle
+
+		g:	randi(3)				//gravity: falling speed
+
+	};
+};
+
+
+//Add randRectangles to the rA Array based on initial width * height / 10000
+for (let i=0; i<cw*ch/10000;i++) rA.push(randRect());
+
+
+const animate=()=>{
+
+	c.clearRect(0,0,cw,ch);
+
+	rA.map(r=>{
+
+		//for animation
+		c.save();
+
+		//spin from center
+		c.translate(
+			r.x + r.w / 2,	//x position
+			r.y + r.h / 2	//y position
+		);
+
+		//update angle
+		c.rotate(r.a);
+
+		//set stroke thickness and location
+		c.strokeStyle	= r.b;		//color
+		c.lineWidth		= r.w / 2;	//thickens based on cube width
+		c.strokeRect(
+			-r.w / 2,	//x position
+			-r.h / 2,	//y position
+			r.w,		//width
+			r.h			//height
+		);
+
+		//set fill and location
+		c.fillStyle		= r.f; //color
+		c.fillRect(
+			-r.w / 2,	//x position
+			-r.h / 2,	//y position
+			r.w,		//width
+			r.h			//height
+		);
+
+		//for animation
+		c.restore();
+
+
+		//test if element is still on screen
+		if(r.y < ch){
+
+			//update angle and y position
+			r.a += (Math.PI*2) / r.s;	//add speed to angle
+			r.y += r.g + 0.8;			//add gravity to y position
+
+		}else{
+
+			//create new random cube properties
+			let n = randRect();
+
+			//apply new random cube properties
+			r.x=n.x; r.y=n.y; r.w=n.w; r.h=n.h; r.f=n.f; r.b=n.b; r.s=n.s; r.a=n.a; r.g=n.g;
+		}
+
+	});
+
+	requestAnimationFrame(animate);
+};
+
+animate();
+</script>
+</body>
+</html>
